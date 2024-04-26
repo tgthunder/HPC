@@ -1,0 +1,78 @@
+#include<iostream>
+#include<omp.h>
+using namespace std;
+
+
+
+
+void seqBubbleSort(int arr[] , int n){
+    bool swapped;
+    for(int i=0;i<n-1;i++){
+        swapped = false;
+        
+        for(int j=0;j<n-i-1;j++){
+            if(arr[j] > arr[j+1]){
+                swap(arr[j],arr[j+1]);
+                swapped = true;
+            }
+        }
+
+        
+        if(!swapped) break;
+    }
+}
+
+void bubbleSort(int arr[] , int n){
+    bool swapped;
+    #pragma omp parallel
+    for(int i=0;i<n-1;i++){
+        
+        swapped = false;
+        
+        #pragma omp for
+        for(int j=0;j<n-i-1;j++){
+             
+            if(arr[j] > arr[j+1]){
+                swap(arr[j],arr[j+1]);
+                swapped = true;
+            }
+        }
+
+        #pragma omp barrier
+        if(!swapped) break;
+    }
+}
+
+void printArray(int arr[] , int n){
+    for(int i=0;i<n;i++){
+        cout << arr[i] << " ";
+    }
+}
+
+int main(){
+    int size = 5;
+    int a[] = {10,5,6,3,7};
+
+    double start_time , end_time;
+
+    printArray(a,size);
+
+    // Sequential time
+    start_time = omp_get_wtime();
+    seqBubbleSort(a,size);
+    end_time = omp_get_wtime();
+    cout << "Time taken by sequential: " << end_time-start_time << endl;
+    printArray(a,size);
+
+    int n = 5;
+    int b[] = {10,5,6,3,7};
+
+    // Sequential time
+    start_time = omp_get_wtime();
+    bubbleSort(b,n);
+    end_time = omp_get_wtime();
+    cout << "Time taken by parallel: " << end_time-start_time << endl;
+    printArray(b,n);
+
+
+}

@@ -1,0 +1,75 @@
+#include<iostream>
+#include<omp.h>
+using namespace std;
+
+void merge(int arr[],int s,int m,int e){
+    int n1 = m-s+1;
+    int n2 = e-m;
+
+    int arr1[n1],arr2[n2];
+    for(int i=0;i<n1;i++){
+        arr1[i] = arr[s+i];
+    }
+    for(int j=0;j<n2;j++){
+        arr2[j] = arr[m+1+j];
+    }
+
+    int i=0,j=0,k=s;
+    while(i<n1 && j<n2){
+        if(arr1[i] <= arr2[j]){
+            arr[k] = arr1[i];
+            i++;
+        }
+        else{
+            arr[k] = arr2[j];
+            j++;
+        }
+
+        k++;
+    }
+
+    while(i<n1){
+        arr[k] = arr1[i];
+        i++;
+        k++;
+    }
+
+    while(j<n2){
+        arr[k] = arr2[j];
+        j++;
+        k++;
+    }
+}
+void mergeSort(int arr[] , int s, int e){
+    if(s<e){
+        int m = (s+e)/2;
+
+        #pragma omp parallel sections
+        {
+        #pragma omp section
+        mergeSort(arr,s,m);
+
+        #pragma omp section
+        mergeSort(arr,m+1,e);
+        }
+
+
+        merge(arr,s,m,e);
+    }
+}
+int main(){
+    int size = 5;
+    int arr[5] = {10,5,7,9,3};
+
+    double start_time , end_time;
+
+    start_time = omp_get_wtime();
+    mergeSort(arr,0,size-1);
+    end_time = omp_get_wtime();
+
+    cout << "Time: " << end_time - start_time << endl;
+
+    for(int i=0;i<size;i++){
+        cout << arr[i] << " ";
+    }
+}
